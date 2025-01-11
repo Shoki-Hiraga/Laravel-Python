@@ -17,4 +17,5 @@ use App\Http\Controllers\PythonController;
 Route::get('/', function () {
     return view('main.index');
 });
+
 Route::get('/', [PythonController::class, 'index']);

@@ -17,8 +17,9 @@ class PythonController extends Controller
         $python_h1_output = shell_exec("python $pythonH1Path");
 
         // ビューに出力を渡す
-        return view('main.index', ['python_title' => $python_title_output,
-        'python_h1' => $python_h1_output
+        return view('main.index', [
+            'python_title' => $python_title_output,
+            'python_h1' => $python_h1_output
     ]);
     }
 }
