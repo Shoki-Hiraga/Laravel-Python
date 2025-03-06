@@ -2,22 +2,11 @@
 <!DOCTYPE html>
 <html lang="ja">
     <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
-        <!-- Optimize Next -->
-<script>(function(p,r,o,j,e,c,t,g){
-    p['_'+t]={};g=r.createElement('script');g.src='https://www.googletagmanager.com/gtm.js?id=GTM-'+t;r[o].prepend(g);
-    g=r.createElement('style');g.innerText='.'+e+t+'{visibility:hidden!important}';r[o].prepend(g);
-    r[o][j].add(e+t);setTimeout(function(){if(r[o][j].contains(e+t)){r[o][j].remove(e+t);p['_'+t]=0}},c)
-    })(window,document,'documentElement','classList','loading',2000,'KNKP2L8B')</script>
-<!-- End Optimize Next -->
+    @include('components.noindex')
+    @include('components.link')
+
 <script src="https://www.googleoptimize.com/optimize.js?id=GTM-W8S9TMG" async></script>
 
-<!-- Google Tag Manager -->
-<script async>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-T9859DT');</script>
-<!-- End Google Tag Manager -->
 
 <!-- Start VWO Async SmartCode -->
 <link rel="preconnect" href="https://dev.visualwebsiteoptimizer.com" />
@@ -89,11 +78,6 @@ f=false,w=window,d=document,v=d.querySelector('#vwoCode'),cK='_vwo_'+account_id+
   </script>
     </head>
     <body>
-        <!-- Google Tag Manager (noscript) -->
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T9859DT"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-        <!-- End Google Tag Manager (noscript) -->
-
         <div id="app">
             <header class="c-article-header">
     <div class="c-article-header__inner">

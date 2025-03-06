@@ -20,3 +20,10 @@ Route::get('/', function () {
 
 Route::get('/', [PythonController::class, 'index']);
 
+Route::get('/q_top', function () {
+    return view('main.q_top');
+})->name('q_top');
+
+Route::get('/q_top/historia-article', function () {
+    return view('main.q_historia');
+})->name('historia_article');
