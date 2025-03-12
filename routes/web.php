@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PythonController;
+use App\Http\Controllers\FormController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,3 +28,6 @@ Route::get('/q_top', function () {
 Route::get('/q_top/historia-article', function () {
     return view('main.q_historia');
 })->name('historia_article');
+
+Route::get('/form', [FormController::class, 'showForm'])->name('form');
+Route::post('/form', [FormController::class, 'submitForm']);
