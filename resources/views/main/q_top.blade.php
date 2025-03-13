@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html lang="ja">
     <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
-    @include('components.noindex')
-    @include('components.link')
+@include('components.noindex')
+@include('components.link')
 
 
         <meta charset="utf-8">
