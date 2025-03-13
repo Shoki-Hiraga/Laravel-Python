@@ -32,7 +32,15 @@
         <blockquote class="twitter-tweet"><p lang="ja" dir="ltr">数日限定入庫車速報<br>クラウン アスリートV<br>GH-JZS171改<br>2000年<br>13.2万km<br>5MT<br>修復歴あり<br>総額241.4万円(税込)<br>ユーザー様買取車⭐︎90マークⅡ 5MT⭐︎BBS 20インチAW⭐︎社外足回り⭐︎1JZ ターボ⭐︎フジツボマフラー<a href="https://twitter.com/hashtag/%E8%BB%8A%E5%A3%B2%E3%82%8A%E3%81%BE%E3%81%99?src=hash&amp;ref_src=twsrc%5Etfw">#車売ります</a> <a href="https://t.co/L64pAXZV10">pic.twitter.com/L64pAXZV10</a></p>&mdash; ガレージカレント直販センタ (@GC__direct) <a href="https://twitter.com/GC__direct/status/1897151110001091017?ref_src=twsrc%5Etfw">March 5, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     </div>
 
-    <h2>テストテキスト</h2>
+        <h2>data-gtm-clickテスト</h2>
+    <div class="btn_test">
+        <button type="submit" class="btn-click-DataGTM" data-gtm-click="button-test-click">送信</button>
+    </div>
+        <h2>class=click-btnテスト</h2>
+    <div class="btn_test">
+        <button type="submit" class="click-btn">送信</button>
+    </div>
+        <h2>テストテキスト</h2>
 
 <p>
 R32型 スカイラインといえば、16年ぶりにGT-Rが復活したことで人気を博した日産が世界に誇るスポーツカーです。走行性能はもちろん、シャープでスタイリッシュなデザインに魅せられ、「いつかは所有したい」と憧れを抱いている方も多いでしょう。
