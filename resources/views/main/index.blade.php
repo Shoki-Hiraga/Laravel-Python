@@ -21,16 +21,43 @@
     </a>   
 
     <h2>twitter埋め込みテスト</h2>
-        <style>
-        .twitter_embed {
-            display: flex;
-            justify-content: center;  /* 横方向中央寄せ */
-            align-items: center;      /* 縦方向中央寄せ（必要なら） */
+    <style>
+    .twitter_container {
+        display: flex;
+        justify-content: center; /* 中央寄せ */
+        gap: 10px; /* 要素間のスペース */
+        width: 100%; /* 画面幅いっぱいに */
+        max-width: 400px; /* 185px × 2 + gap */
+        flex-wrap: wrap; /* 必要に応じて折り返し */
+    }
+
+    .twitter_embed {
+        width: 185px !important; /* Twitterの埋め込みを強制的に 185px に */
+        min-width: 185px !important;
+        max-width: 185px !important;
+        box-sizing: border-box; /* パディングを含めたサイズ */
+    }
+
+    /* スマホ向けの調整 */
+    @media (max-width: 400px) {
+        .twitter_container {
+            flex-wrap: wrap; /* 狭い画面では縦並び */
         }
-        </style>
-    <div class="twitter_embed" data-gtm-click="twitter_card">
-        <blockquote class="twitter-tweet"><p lang="ja" dir="ltr">数日限定入庫車速報<br>クラウン アスリートV<br>GH-JZS171改<br>2000年<br>13.2万km<br>5MT<br>修復歴あり<br>総額241.4万円(税込)<br>ユーザー様買取車⭐︎90マークⅡ 5MT⭐︎BBS 20インチAW⭐︎社外足回り⭐︎1JZ ターボ⭐︎フジツボマフラー<a href="https://twitter.com/hashtag/%E8%BB%8A%E5%A3%B2%E3%82%8A%E3%81%BE%E3%81%99?src=hash&amp;ref_src=twsrc%5Etfw">#車売ります</a> <a href="https://t.co/L64pAXZV10">pic.twitter.com/L64pAXZV10</a></p>&mdash; ガレージカレント直販センタ (@GC__direct) <a href="https://twitter.com/GC__direct/status/1897151110001091017?ref_src=twsrc%5Etfw">March 5, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        .twitter_embed {
+            width: 100% !important; /* 1つずつ縦並び */
+        }
+    }
+    </style>
+
+    <div class="twitter_container">
+        <div class="twitter_embed" data-gtm-click="twitter_card">
+            <blockquote class="twitter-tweet"><p lang="ja" dir="ltr">数日限定入庫車速報<br>クラウン アスリートV<br>GH-JZS171改<br>2000年<br>13.2万km<br>5MT<br>修復歴あり<br>総額241.4万円(税込)<br>ユーザー様買取車⭐︎90マークⅡ 5MT⭐︎BBS 20インチAW⭐︎社外足回り⭐︎1JZ ターボ⭐︎フジツボマフラー<a href="https://twitter.com/hashtag/%E8%BB%8A%E5%A3%B2%E3%82%8A%E3%81%BE%E3%81%99?src=hash&amp;ref_src=twsrc%5Etfw">#車売ります</a> <a href="https://t.co/L64pAXZV10">pic.twitter.com/L64pAXZV10</a></p>&mdash; ガレージカレント直販センタ (@GC__direct) <a href="https://twitter.com/GC__direct/status/1897151110001091017?ref_src=twsrc%5Etfw">March 5, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
+        <div class="twitter_embed" data-gtm-click="twitter_card">
+            <blockquote class="twitter-tweet"><p lang="ja" dir="ltr">数日限定入庫車速報<br>クラウン アスリートV<br>GH-JZS171改<br>2000年<br>13.2万km<br>5MT<br>修復歴あり<br>総額241.4万円(税込)<br>ユーザー様買取車⭐︎90マークⅡ 5MT⭐︎BBS 20インチAW⭐︎社外足回り⭐︎1JZ ターボ⭐︎フジツボマフラー<a href="https://twitter.com/hashtag/%E8%BB%8A%E5%A3%B2%E3%82%8A%E3%81%BE%E3%81%99?src=hash&amp;ref_src=twsrc%5Etfw">#車売ります</a> <a href="https://t.co/L64pAXZV10">pic.twitter.com/L64pAXZV10</a></p>&mdash; ガレージカレント直販センタ (@GC__direct) <a href="https://twitter.com/GC__direct/status/1897151110001091017?ref_src=twsrc%5Etfw">March 5, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
     </div>
+
 
         <h2>data-gtm-clickテスト</h2>
     <div class="btn_test">
