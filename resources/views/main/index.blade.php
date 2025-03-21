@@ -80,6 +80,11 @@
     <div class="btn_test">
         <button type="submit" class="click-btn">送信</button>
     </div>
+
+    <h2>URL_click_テスト</h2>
+    <div class="btn_test">
+        <a href>https://332web.com/</a>
+    </div>
         <h2>テストテキスト</h2>
 
 <p>
