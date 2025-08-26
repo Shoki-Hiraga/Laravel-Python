@@ -102,4 +102,20 @@ class ImageController extends Controller
 
         return response()->download($processedPath)->deleteFileAfterSend(true);
     }
+
+    public function destroy($id)
+    {
+        $image = Image::findOrFail($id);
+
+        // ストレージから削除
+        if (Storage::exists($image->file_path)) {
+            Storage::delete($image->file_path);
+        }
+
+        // DBから削除
+        $image->delete();
+
+        return redirect()->back()->with('status', '画像を削除しました。');
+    }
+
 }

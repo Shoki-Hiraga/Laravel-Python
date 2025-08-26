@@ -40,3 +40,4 @@ Route::get('/images', [ImageController::class, 'index'])
 Route::post('/images/upload', [ImageController::class, 'upload']);
 Route::post('/images/process', [ImageController::class, 'process']);
 Route::get('/images/download/{id}', [ImageController::class, 'download']);
+Route::delete('/images/{id}', [ImageController::class, 'destroy'])->name('images.destroy');
