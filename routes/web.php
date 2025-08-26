@@ -34,6 +34,9 @@ Route::get('/q_top/historia-article', function () {
 Route::get('/form', [FormController::class, 'showForm'])->name('form');
 Route::post('/form', [FormController::class, 'submitForm']);
 
-Route::get('/image', [ImageController::class, 'show']);
-Route::post('/upload', [ImageController::class, 'upload']);
-Route::post('/process', [ImageController::class, 'process']);
+Route::get('/images', [ImageController::class, 'index'])
+->name('images');
+
+Route::post('/images/upload', [ImageController::class, 'upload']);
+Route::post('/images/process', [ImageController::class, 'process']);
+Route::get('/images/download/{id}', [ImageController::class, 'download']);

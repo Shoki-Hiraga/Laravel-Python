@@ -3,55 +3,58 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Image;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\Response;
 
 class ImageController extends Controller
 {
-    // 画像アップロード処理
+    public function index()
+    {
+        $images = Image::all();
+        return view('main.image', compact('images'));
+    }
+
     public function upload(Request $request)
     {
         $request->validate([
-            'images.*' => 'required|image|max:5120', // 各画像は最大5MB
+            'images.*' => 'image|mimes:jpeg,png,jpg',
         ]);
 
         foreach ($request->file('images') as $image) {
-            $image->storeAs('public/uploads', $image->getClientOriginalName());
+            $path = $image->store('uploads');
+            Image::create([
+                'original_name' => $image->getClientOriginalName(),
+                'file_path' => $path,
+            ]);
         }
 
-        return response()->json(['message' => 'アップロード成功']);
+        return redirect('/images')->with('status', '画像をアップロードしました');
     }
 
-    // Pythonスクリプト実行＆加工済み画像をダウンロードさせる
-    public function process(Request $request)
+    public function process()
     {
-        $filename = 'IMG_1629.jpg'; // 固定名（変更が必要ならパラメータで受け取るように拡張可能）
-        $inputPath = storage_path('app/public/uploads/' . $filename);
-        $outputPath = storage_path('app/public/processed/' . pathinfo($filename, PATHINFO_FILENAME) . '_processed.jpg');
+        $images = Image::all();
 
-        // ディレクトリが無ければ作成
-        if (!file_exists(dirname($outputPath))) {
-            mkdir(dirname($outputPath), 0755, true);
+        foreach ($images as $img) {
+            $inputPath = storage_path('app/' . $img->file_path);
+            $outputPath = storage_path('app/processed_' . basename($img->file_path));
+
+            $cmd = "~/anaconda3/bin/python3 image_bokashi.py \"$inputPath\" \"$outputPath\"";
+            exec($cmd);
         }
 
-        // Pythonスクリプト呼び出し
-        $python = escapeshellcmd('~/anaconda3/bin/python');
-        $script = base_path('python/image_bokashi.py');
-
-        // 実行
-        $cmd = "$python $script \"$inputPath\" \"$outputPath\"";
-        exec($cmd, $output, $return_var);
-
-        if ($return_var !== 0 || !file_exists($outputPath)) {
-            return response()->json(['error' => '画像処理に失敗しました'], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-
-        return response()->download($outputPath)->deleteFileAfterSend(true);
+        return redirect('/images')->with('status', '画像処理が完了しました');
     }
 
-    // ビュー表示用
-    public function show()
+    public function download($id)
     {
-        return view('main.image');
+        $image = Image::findOrFail($id);
+        $processedPath = storage_path('app/processed_' . basename($image->file_path));
+
+        // 元画像削除処理
+        Storage::delete($image->file_path);
+        $image->delete();
+
+        return response()->download($processedPath)->deleteFileAfterSend(true);
     }
 }
