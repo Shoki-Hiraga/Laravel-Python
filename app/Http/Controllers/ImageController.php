@@ -32,42 +32,55 @@ class ImageController extends Controller
         return redirect('/images')->with('status', '画像をアップロードしました');
     }
 
-    public function process()
+    public function process(Request $request)
     {
         $images = Image::all();
 
-        $pythonBin = '/home/chasercb750/anaconda3/bin/python3';
+        $pythonBin = '/home/chasercb750/anaconda3/envs/rembg-env/bin/python3';
         $scriptPath = base_path('app/python-dev/image_bokashi.py');
+
+        // ぼかし強度（必ず奇数に補正）
+        $blur = intval($request->input('blur', 309));
+        if ($blur % 2 === 0) {
+            $blur += 1;
+        }
+        if ($blur < 1 || $blur > 999) {
+            $blur = 309;
+        }
+
+        $log = [];
 
         foreach ($images as $img) {
             $inputPath = storage_path('app/' . $img->file_path);
             $outputPath = storage_path('app/processed_' . basename($img->file_path));
 
-            // コマンド実行（stderrもキャプチャ）
-            $cmd = "$pythonBin \"$scriptPath\" \"$inputPath\" \"$outputPath\"";
+            // Pythonスクリプト呼び出し（blur引数を追加）
+            $cmd = "$pythonBin \"$scriptPath\" \"$inputPath\" \"$outputPath\" \"$blur\"";
+
             $output = [];
             $returnVar = 0;
             exec($cmd . ' 2>&1', $output, $returnVar);
 
-            if ($returnVar !== 0) {
-                Log::error("❌ Pythonスクリプト実行エラー", [
-                    'command' => $cmd,
-                    'output' => $output,
-                    'return_code' => $returnVar,
-                ]);
-                return redirect('/images')->with('status', '画像処理中にエラーが発生しました。ログをご確認ください。');
+            $log[] = "【画像】" . $img->original_name;
+            $log[] = "コマンド: $cmd";
+            $log[] = "リターンコード: $returnVar";
+            $log[] = "------ 実行ログ ------";
+            $log = array_merge($log, $output);
+            $log[] = "----------------------";
+
+            if ($returnVar !== 0 || !file_exists($outputPath)) {
+                $log[] = "❌ 処理に失敗しました。";
+            } else {
+                $log[] = "✅ 処理成功 → " . $outputPath;
             }
 
-            // ファイル生成チェック
-            if (!file_exists($outputPath)) {
-                Log::error("❌ 処理済みファイルが見つかりません", [
-                    'expected_path' => $outputPath,
-                ]);
-                return redirect('/images')->with('status', '処理済み画像ファイルが生成されませんでした。');
-            }
+            $log[] = ""; // 区切り
         }
 
-        return redirect('/images')->with('status', '✅ 画像処理が完了しました');
+        return view('main.image', [
+            'images' => Image::all(),
+            'log' => $log,
+        ]);
     }
 
     public function download($id)
@@ -75,7 +88,6 @@ class ImageController extends Controller
         $image = Image::findOrFail($id);
         $processedPath = storage_path('app/processed_' . basename($image->file_path));
 
-        // 処理済みファイルの存在確認
         if (!file_exists($processedPath)) {
             Log::warning("⚠️ ダウンロードファイルが存在しません", [
                 'path' => $processedPath,
@@ -85,7 +97,6 @@ class ImageController extends Controller
             return redirect('/images')->with('status', '処理済み画像が見つかりませんでした。もう一度「実行」してください。');
         }
 
-        // 元画像削除 + DB削除
         Storage::delete($image->file_path);
         $image->delete();
 
