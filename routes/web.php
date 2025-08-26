@@ -17,9 +17,11 @@ use App\Http\Controllers\FormController;
 
 Route::get('/', function () {
     return view('main.index');
-});
+})->name('TOP');
 
-Route::get('/', [PythonController::class, 'index']);
+Route::get('/test', [PythonController::class, 'index'])
+->name('test');
+
 
 Route::get('/q_top', function () {
     return view('main.q_top');
