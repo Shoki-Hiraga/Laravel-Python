@@ -2,13 +2,28 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>画像アップロードと処理</title>
+    <title>画像ぼかし一括処理</title>
     <link rel="stylesheet" href="{{ asset('css/image_python.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>画像アップロードと処理</h1>
-
+        <h1>画像ぼかし一括処理</h1>
+        <ul>
+            <li>画像を1枚～複数アップロード</li>
+            <li>画像を1枚～複数アップロードボタンを押下</li>
+            <li>ぼかし強度を決める
+            <ul>
+                309が一番良く、数値が低いほどぼかし弱め</li>
+            </ul>
+            <li>実行ボタンを押下</li>
+            <ul>
+                <li>しばらくローディングし、Pythonが実行される</li>
+            </ul>
+            <li>ダウンロードリストが生成されるため画像をダウンロード</li>
+            <ul>
+                <li>※ダウンロードしたら画像は削除されるため要注意</li>
+            </ul>
+        </ul>
         @if (session('status'))
             <div class="alert">{{ session('status') }}</div>
         @endif
