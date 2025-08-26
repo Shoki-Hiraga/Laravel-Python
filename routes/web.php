@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PythonController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\ImageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +23,6 @@ Route::get('/', function () {
 Route::get('/test', [PythonController::class, 'index'])
 ->name('test');
 
-
 Route::get('/q_top', function () {
     return view('main.q_top');
 })->name('q_top');
@@ -33,3 +33,7 @@ Route::get('/q_top/historia-article', function () {
 
 Route::get('/form', [FormController::class, 'showForm'])->name('form');
 Route::post('/form', [FormController::class, 'submitForm']);
+
+Route::get('/image', [ImageController::class, 'show']);
+Route::post('/upload', [ImageController::class, 'upload']);
+Route::post('/process', [ImageController::class, 'process']);
