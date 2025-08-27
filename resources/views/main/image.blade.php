@@ -7,6 +7,7 @@
 </head>
 <body>
     <div class="container">
+        <h1>画像ぼかし一括処理</h1>
 
         <!-- 機能セクション -->
         <div class="functional-section">
@@ -57,7 +58,6 @@
             @endif
         </div>
 
-        <h1>画像ぼかし一括処理</h1>
         <!-- 案内セクション -->
         <div class="info-section">
         <h2>操作ガイド</h2>
