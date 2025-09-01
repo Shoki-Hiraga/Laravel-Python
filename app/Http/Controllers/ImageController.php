@@ -111,11 +111,18 @@ class ImageController extends Controller
         if (Storage::exists($image->file_path)) {
             Storage::delete($image->file_path);
         }
+        
+        // processedファイルもあれば削除（念のため）
+        $processedPath = storage_path('app/processed_' . basename($image->file_path));
+        if (file_exists($processedPath)) {
+            unlink($processedPath);
+        }
 
         // DBから削除
         $image->delete();
 
-        return redirect()->back()->with('status', '画像を削除しました。');
+        // どのページから削除しても、必ず画像一覧ページ '/images' に戻す
+        return redirect('/images')->with('status', '画像を削除しました。');
     }
 
 }

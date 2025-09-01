@@ -6,12 +6,17 @@
     <link rel="stylesheet" href="{{ asset('css/image_python.css') }}">
 </head>
 <body>
+    {{-- ローディング画面のHTML --}}
+    <div id="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>画像処理を実行中です。<br>しばらくお待ちください...</p>
+    </div>
+
     <div class="container">
         <h1>画像ぼかし一括処理</h1>
 
-        <!-- 機能セクション -->
         <div class="functional-section">
-        <h2>ぼかし機能</h2>
+            <h2>ぼかし機能</h2>
             @if (session('status'))
                 <div class="alert">{{ session('status') }}</div>
             @endif
@@ -23,7 +28,8 @@
                 <button type="submit">アップロード</button>
             </form>
 
-            <form action="/images/process" method="POST" class="form-section">
+            {{-- 実行フォームにID "process-form" を追加 --}}
+            <form action="/images/process" method="POST" class="form-section" id="process-form">
                 @csrf
                 <label for="blur">ぼかし強度（奇数）:</label>
                 <input type="number" name="blur" id="blur" min="1" max="999" step="2" value="309">
@@ -38,7 +44,6 @@
                             {{ $image->original_name }}
                             <a href="{{ url('/images/download/' . $image->id) }}">ダウンロード</a>
 
-                            <!-- 削除ボタン -->
                             <form action="{{ route('images.destroy', $image->id) }}" method="POST" style="display:inline-block;">
                                 @csrf
                                 @method('DELETE')
@@ -52,13 +57,12 @@
                 <h2>実行ログ</h2>
                 <pre class="terminal-log">
                     @foreach ($log as $line)
-                    <span>{{ $line }}</span>
+                        <span>{{ $line }}</span>
                     @endforeach
                 </pre>
             @endif
         </div>
 
-        <!-- 案内セクション -->
         <div class="info-section">
         <h2>操作ガイド</h2>
             <ul>
@@ -125,6 +129,30 @@ document.addEventListener("DOMContentLoaded", function () {
     window.removeFile = function (index) {
         selectedFiles.splice(index, 1);
         renderFileList();
+    }
+
+    // ▼▼▼【ローディング画面表示用のJavaScript】▼▼▼
+    const processForm = document.getElementById('process-form');
+    if (processForm) {
+        processForm.addEventListener('submit', function(event) { // ← eventを引数として受け取る
+            // 画像が1枚もアップロードされていない場合は処理を中断
+            const imageList = document.querySelector('.image-list');
+            if (!imageList || imageList.children.length === 0) {
+                alert('画像がアップロードされていません。先に画像をアップロードしてください。');
+                // フォームの送信を中止
+                event.preventDefault();
+                return;
+            }
+
+            // ローディング画面を表示
+            document.getElementById('loading-overlay').style.display = 'flex';
+
+            // すべてのボタンを無効化して二重送信を防ぐ
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.disabled = true;
+            });
+        });
     }
 });
 </script>
