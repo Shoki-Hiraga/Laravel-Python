@@ -24,13 +24,12 @@
     </div>
     @endif
 
-
     <div class="container">
         <h1>画像ぼかし一括処理</h1>
 
         @if (!isset($log))
         <div class="functional-section">
-            <h2>ぼかし機能</h2>
+            <h2>ぼかし機能 ※1実行10件まで</h2>
             @if (session('status'))
                 <div class="alert">{{ session('status') }}</div>
             @endif
@@ -78,7 +77,7 @@
         @if (isset($log))
             <div class="log-section">
                 <h2>実行ログ</h2>
-                <h3><a href="{{ route('images') }}">画像処理（本番環境でのみ動作）</a></h3>
+                <h3><a href="{{ route('images') }}">TOPページへ</a></h3>
                 <pre class="terminal-log">
                     @foreach ($log as $line)
                         <span>{{ $line }}</span>
