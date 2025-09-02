@@ -4,17 +4,31 @@
     <meta charset="UTF-8">
     <title>画像ぼかし一括処理</title>
     <link rel="stylesheet" href="{{ asset('css/image_python.css') }}">
+
 </head>
 <body>
-    {{-- ローディング画面のHTML --}}
     <div id="loading-overlay" style="display: none;">
         <div class="spinner"></div>
         <p>画像処理を実行中です。<br>しばらくお待ちください...</p>
     </div>
 
+    @if (isset($log))
+    <div id="result-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>画像処理が完了しました</h2>
+            <div class="modal-buttons">
+                <button id="return-top-btn">TOPに戻って画像をダウンロードする</button>
+                <button id="view-log-btn">開発ログを見る</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+
     <div class="container">
         <h1>画像ぼかし一括処理</h1>
 
+        @if (!isset($log))
         <div class="functional-section">
             <h2>ぼかし機能</h2>
             @if (session('status'))
@@ -28,43 +42,54 @@
                 <button type="submit">アップロード</button>
             </form>
 
-            {{-- 実行フォームにID "process-form" を追加 --}}
             <form action="/images/process" method="POST" class="form-section" id="process-form">
                 @csrf
                 <label for="blur">ぼかし強度（奇数）:</label>
                 <input type="number" name="blur" id="blur" min="1" max="999" step="2" value="309">
                 <button type="submit">実行</button>
             </form>
+        </div>
+        @endif
 
+
+        @if (!isset($log))
             @if ($images->count())
-                <h2>処理済み画像のダウンロード</h2>
-                <ul class="image-list">
-                    @foreach ($images as $image)
-                        <li>
-                            {{ $image->original_name }}
-                            <a href="{{ url('/images/download/' . $image->id) }}">ダウンロード</a>
+                <div class="download-section">
+                    <h2>処理済み画像のダウンロード</h2>
+                    <ul class="image-list">
+                        @foreach ($images as $image)
+                            <li>
+                                {{ $image->original_name }}
+                                <a href="{{ url('/images/download/' . $image->id) }}">ダウンロード</a>
 
-                            <form action="{{ route('images.destroy', $image->id) }}" method="POST" style="display:inline-block;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="delete-button" onclick="return confirm('この画像を削除しますか？')">削除</button>
-                            </form>
-                        </li>
-                    @endforeach
-                </ul>
+                                <form action="{{ route('images.destroy', $image->id) }}" method="POST" style="display:inline-block;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="delete-button" onclick="return confirm('この画像を削除しますか？')">削除</button>
+                                </form>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
             @endif
-            @if (isset($log))
+        @endif
+
+
+        @if (isset($log))
+            <div class="log-section">
                 <h2>実行ログ</h2>
+                <h3><a href="{{ route('images') }}">画像処理（本番環境でのみ動作）</a></h3>
                 <pre class="terminal-log">
                     @foreach ($log as $line)
                         <span>{{ $line }}</span>
                     @endforeach
                 </pre>
-            @endif
-        </div>
+            </div>
+        @endif
 
+        @if (!isset($log))
         <div class="info-section">
-        <h2>操作ガイド</h2>
+            <h2>操作ガイド</h2>
             <ul>
                 <li>画像を1枚～複数アップロード</li>
                 <li>アップロードボタンを押下</li>
@@ -92,6 +117,7 @@
                 <li>ナンバープレートはそのまま</li>
             </ul>
         </div>
+        @endif
     </div>
 
 
@@ -102,10 +128,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let selectedFiles = [];
 
-    fileInput.addEventListener("change", function () {
-        selectedFiles = Array.from(fileInput.files);
-        renderFileList();
-    });
+    // fileInputが存在する場合のみイベントリスナーを設定
+    if(fileInput) {
+        fileInput.addEventListener("change", function () {
+            selectedFiles = Array.from(fileInput.files);
+            renderFileList();
+        });
+    }
 
     function renderFileList() {
         fileList.innerHTML = "";
@@ -120,7 +149,6 @@ document.addEventListener("DOMContentLoaded", function () {
             fileList.appendChild(item);
         });
 
-        // create new DataTransfer and re-attach files
         const dataTransfer = new DataTransfer();
         selectedFiles.forEach(file => dataTransfer.items.add(file));
         fileInput.files = dataTransfer.files;
@@ -131,29 +159,38 @@ document.addEventListener("DOMContentLoaded", function () {
         renderFileList();
     }
 
-    // ▼▼▼【ローディング画面表示用のJavaScript】▼▼▼
     const processForm = document.getElementById('process-form');
     if (processForm) {
-        processForm.addEventListener('submit', function(event) { // ← eventを引数として受け取る
-            // 画像が1枚もアップロードされていない場合は処理を中断
+        processForm.addEventListener('submit', function(event) {
             const imageList = document.querySelector('.image-list');
             if (!imageList || imageList.children.length === 0) {
                 alert('画像がアップロードされていません。先に画像をアップロードしてください。');
-                // フォームの送信を中止
                 event.preventDefault();
                 return;
             }
-
-            // ローディング画面を表示
             document.getElementById('loading-overlay').style.display = 'flex';
-
-            // すべてのボタンを無効化して二重送信を防ぐ
             const buttons = document.querySelectorAll('button');
             buttons.forEach(button => {
                 button.disabled = true;
             });
         });
     }
+
+    @if (isset($log))
+        const resultModal = document.getElementById('result-modal');
+        const returnTopBtn = document.getElementById('return-top-btn');
+        const viewLogBtn = document.getElementById('view-log-btn');
+
+        // TOPに戻るボタンの処理
+        returnTopBtn.addEventListener('click', function() {
+            window.location.href = '/images';
+        });
+
+        // ログを見るボタンの処理
+        viewLogBtn.addEventListener('click', function() {
+            resultModal.style.display = 'none'; // モーダルを非表示にする
+        });
+    @endif
 });
 </script>
 
