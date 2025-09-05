@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>画像ぼかし一括処理</title>
     <link rel="stylesheet" href="{{ asset('css/image_python.css') }}">
+    @include('components.header')
 
 </head>
 <body>
@@ -45,7 +46,7 @@
                 @csrf
                 <label for="blur">ぼかし強度（奇数）:</label>
                 <input type="number" name="blur" id="blur" min="1" max="999" step="2" value="309">
-                <button type="submit">実行</button>
+                <button type="submit" data-gtm-click="bokashi" >実行</button>
             </form>
         </div>
         @endif
