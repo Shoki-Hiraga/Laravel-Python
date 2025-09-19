@@ -1,0 +1,29 @@
+h1, h2, p {
+    text-align: center;
+    color: #0084ff;
+}
+
+h1 {
+    font-size: 50px;
+    margin-bottom: 50px;
+
+}
+
+h2 {
+    font-size: 30px;
+    margin-bottom: 50px;
+}
+
+p {
+    font-size: 20px;
+}
+
+body {
+    padding: 100px;
+}
+
+.btn_test {
+    display: flex;
+    justify-content: center;  /* 横方向中央寄せ */
+    align-items: center;      /* 縦方向中央寄せ（必要なら） */
+}

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PythonController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\PurchaseResultsImageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,3 +42,6 @@ Route::post('/images/upload', [ImageController::class, 'upload']);
 Route::post('/images/process', [ImageController::class, 'process']);
 Route::get('/images/download/{id}', [ImageController::class, 'download']);
 Route::delete('/images/{id}', [ImageController::class, 'destroy'])->name('images.destroy');
+
+Route::get('/purchase-results-images/create', [PurchaseResultsImageController::class, 'create'])->name('purchase_results_images.create');
+Route::post('/purchase-results-images', [PurchaseResultsImageController::class, 'store'])->name('purchase_results_images.store');
