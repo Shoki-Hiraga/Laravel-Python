@@ -8,6 +8,7 @@
 <body>
     <div class="container">
         <h1>画像入稿フォーム</h1>
+        <h2><a href="{{ route('purchase_results_images.index') }}">入稿画像一覧</a></h2>
 
         {{-- 成功メッセージ --}}
         @if(session('success'))

@@ -83,3 +83,28 @@ body {
 .btn-delete:hover {
     background: #c82333;
 }
+
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination nav {
+    display: inline-block;
+}
+
+.pagination a,
+.pagination span {
+    margin: 0 5px;
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.pagination .active span {
+    background: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}

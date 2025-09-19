@@ -8,6 +8,7 @@
 <body>
 <div class="container">
     <h1>アップロード済み画像一覧</h1>
+    <h2><a href="{{ route('purchase_results_images.create') }}">買取実績画像入稿</a></h2>
 
     @if(session('success'))
         <div class="alert success">{{ session('success') }}</div>
@@ -24,6 +25,7 @@
                 <th>purchase_results_id</th>
                 <th>k_number</th>
                 <th>プレビュー</th>
+                <th>image_path</th>
                 <th>操作</th>
             </tr>
         </thead>
@@ -37,6 +39,9 @@
                         <img src="{{ asset('storage/' . $image->image_path) }}" alt="画像" class="thumb">
                     </td>
                     <td>
+                        {{ $image->image_path }}
+                    </td>
+                    <td>
                         <a href="{{ route('purchase_results_images.download', $image->id) }}" class="btn btn-download">ダウンロード</a>
 
                         <form action="{{ route('purchase_results_images.destroy', $image->id) }}" method="POST" style="display:inline;">
@@ -48,11 +53,16 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5">アップロードされた画像はありません。</td>
+                    <td colspan="6">アップロードされた画像はありません。</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
+
+    {{-- ページネーションリンク --}}
+    <div class="pagination">
+        {{ $images->links() }}
+    </div>
 </div>
 </body>
 </html>

@@ -18,10 +18,12 @@ class PurchaseResultsImageController extends Controller
         $request->validate([
             'purchase_results_id' => 'required|integer',
             'k_number' => 'required|string|max:255',
-            'image' => 'required|image|max:10240',
+            'image' => 'required|image|max:102400', // 100MB
         ]);
 
-        $path = $request->file('image')->store('purchase_results_images', 'public');
+        $file = $request->file('image');
+        $originalName = $file->getClientOriginalName(); // 元のファイル名を取得
+        $path = $file->storeAs('purchase_results_images', $originalName, 'public');
 
         PurchaseResultsImage::create([
             'purchase_results_id' => $request->purchase_results_id,
@@ -34,10 +36,11 @@ class PurchaseResultsImageController extends Controller
 
     public function index()
     {
-        $images = PurchaseResultsImage::latest()->get();
+        // ページネーション（1ページ50件）
+        $images = PurchaseResultsImage::latest()->paginate(50);
+
         return view('purchase_results_images.purch_index', compact('images'));
     }
-
     public function download($id)
     {
         $image = PurchaseResultsImage::findOrFail($id);
