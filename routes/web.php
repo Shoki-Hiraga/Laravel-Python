@@ -43,5 +43,8 @@ Route::post('/images/process', [ImageController::class, 'process']);
 Route::get('/images/download/{id}', [ImageController::class, 'download']);
 Route::delete('/images/{id}', [ImageController::class, 'destroy'])->name('images.destroy');
 
+Route::get('/purchase-results-images', [PurchaseResultsImageController::class, 'index'])->name('purchase_results_images.index');
 Route::get('/purchase-results-images/create', [PurchaseResultsImageController::class, 'create'])->name('purchase_results_images.create');
+Route::get('/purchase-results-images/{id}/download', [PurchaseResultsImageController::class, 'download'])->name('purchase_results_images.download');
+Route::delete('/purchase-results-images/{id}', [PurchaseResultsImageController::class, 'destroy'])->name('purchase_results_images.destroy');
 Route::post('/purchase-results-images', [PurchaseResultsImageController::class, 'store'])->name('purchase_results_images.store');
