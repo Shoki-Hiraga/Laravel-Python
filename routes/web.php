@@ -24,6 +24,14 @@ Route::get('/', function () {
 Route::get('/test', [PythonController::class, 'index'])
 ->name('test');
 
+Route::get('/aws_tran', function () {
+    return view('main.AWS_transfer');
+})->name('aws_tran');
+
+Route::get('/aws_opt', function () {
+    return view('main.AWS_optimization');
+})->name('aaws_opt');
+
 Route::get('/q_top', function () {
     return view('main.q_top');
 })->name('q_top');
