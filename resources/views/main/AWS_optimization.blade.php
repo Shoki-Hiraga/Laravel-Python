@@ -278,7 +278,7 @@
         </header>
 
         <nav class="nav-tabs">
-            <button class="nav-tab active" onclick="showSection('summary')">エグゼクティブサマリー</button>
+            <button class="nav-tab active" onclick="showSection('summary')">サマリー</button>
             <button class="nav-tab" onclick="showSection('analysis')">現状分析</button>
             <button class="nav-tab" onclick="showSection('pathA')">経路A：AWS最適化</button>
             <button class="nav-tab" onclick="showSection('pathB')">経路B：ハイパースケーラー</button>
