@@ -24,7 +24,7 @@ Route::get('/aws_tran', function () {
     return view('main.AWS_transfer');
 })->name('aws_tran');
 
-Route::get('/aws_opt', function () {          // ← name を "aws_opt" に修正
+Route::get('/aws_opt', function () {
     return view('main.AWS_optimization');
 })->name('aws_opt');
 
