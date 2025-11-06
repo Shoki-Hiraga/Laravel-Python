@@ -72,4 +72,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/python-runner/execute', [PythonRunnerController::class, 'execute'])->name('python.execute');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/python-runner', [PythonRunnerController::class, 'index'])->name('python.runner');
+    Route::post('/python-runner/execute', [PythonRunnerController::class, 'execute'])->name('python.execute');
+
+    Route::get('/python-log/{file}', [PythonRunnerController::class, 'log'])
+        ->where('file', '.*')
+        ->name('python.log');
+
+    Route::post('/python-stop/{file}', [PythonRunnerController::class, 'stop'])
+        ->where('file', '.*')
+        ->name('python.stop');
+});
+
 require __DIR__.'/auth.php';
