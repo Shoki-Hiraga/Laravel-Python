@@ -10,8 +10,8 @@
 <h2><a href="{{ route('images') }}">画像処理（本番環境でのみ動作）</a></h2>
 
 <h1>管理画面機能</h1>
-<h2><a href="{{ route('dashboard') }}">ダッシュボード</a></h2>
-
+<h2><a href="{{ route('login') }}">ログイン</a></h2>
+<h2><a href="{{ route('python.runner') }}">Python実行</a></h2>
 
 <h2><a href="javascript:history.back()" class="btn btn-primary">戻る</a></h2>
 

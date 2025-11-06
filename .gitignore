@@ -19,3 +19,15 @@ yarn-error.log
 app/python-dev/setting_file/json_file
 app/python-dev//setting_file/yaml_file
 app/python-dev//setting_file/browser_login
+
+# app/Python 配下の設定ファイル系フォルダをすべて無視
+app/Python/setting_file/json_file/
+app/Python/setting_file/yaml_file/
+app/Python/setting_file/browser_login/
+
+# Pythonキャッシュはすべて無視
+**/__pycache__/
+__pycache__/
+
+# AIキーや環境依存ファイル
+app/Python/**/AI_apikey.py

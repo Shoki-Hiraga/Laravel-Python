@@ -1,0 +1,8 @@
+in_office = 'C:/Users/hiraga/Downloads'
+out_office = 'C:/Users/hiraga/Downloads'
+in_a09 = 'C:/Users/main/Downloads'
+out_main = 'C:/Users/main/Downloads'
+in_raytrek = 'C:/Users/RAYTREK/Downloads'
+out_raytrek = 'C:/Users/RAYTREK/Downloads'
+in_K39_sho = 'C:/Users/K39_sho/Downloads'
+out_K39_sho = 'C:/Users/K39_sho/Downloads'

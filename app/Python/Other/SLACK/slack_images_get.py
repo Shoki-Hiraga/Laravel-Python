@@ -1,0 +1,667 @@
+import os
+import time
+import json
+import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
+
+# ====== 設定 ======
+USER_DATA_DIR = r"C:\Users\hiraga\AppData\Local\Google\Chrome\User Data Selenium"
+PROFILE_NAME = "Profile 1"
+
+save_dir = r"C:\Users\hiraga\Downloads\slack_ダウンロード"
+os.makedirs(save_dir, exist_ok=True)
+
+# ダウンロード枚数の上限 (None にすると無制限)
+MAX_DOWNLOADS = 3
+
+# 許可する画像拡張子
+IMAGE_EXTS = [".jpg", ".jpeg", ".png", ".gif", ".webp"]
+
+# ユニーク番号とSlack URLのセット
+post_data = [
+# ("K11667", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1757899617.155009"),
+# ("K11647", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1757749431.512759"),
+# ("K11746", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1758439911.726769"),
+# ("K11646", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1757746568.017709"),
+# ("K11554", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1756781062.123369"),
+# ("K11337", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1754207701.694959"),
+# ("K11242", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1753496478.143449"),
+# ("K11607", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1757144137.114149"),
+# ("K11169", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1752713630.466819"),
+# ("K11590", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1757206992.857209"),
+# ("K11462", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1756003885.076999"),
+# ("K11465", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1756001112.916549"),
+# ("K11445", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1755933737.496979"),
+# ("K11409", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1755565704.154329"),
+# ("K11375", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1755138794.956309"),
+# ("K11367", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1754964324.559109"),
+# ("K11355", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1754809038.918559"),
+# ("K11339", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1754636550.275699"),
+# ("K11130", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1752230150.944699"),
+# ("K11392", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1755306351.100579"),
+# ("K11381", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1755246007.496449"),
+# ("K11370", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1754994200.857269"),
+# ("K11322", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1754389494.579039"),
+# ("K11261", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1753610000.556099"),
+# ("K10792", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1748586242.681989"),
+# ("K11257", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1753581593.270949"),
+# ("K11150", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1752376079.603989"),
+# ("K11129", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1752229667.533319"),
+# ("K11218", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1753147433.809269"),
+# ("K11204", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1753080228.544069"),
+# ("K9134", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1733466715.272399"),
+# ("K11141", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1752305928.393479"),
+# ("K11081", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1751679414.695049"),
+# ("K11017", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1750826903.826639"),
+# ("K11143", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1752369180.549759"),
+# ("K11149", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1752372076.688919"),
+# ("k11036", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1751180990.863589"),
+# ("K10890", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1749783866.999069"),
+# ("K11084", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1751700209.705559"),
+# ("K11067", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1751159260.399299"),
+# ("K11035", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1751160028.620079"),
+# ("K10977", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1736215532.252099"),
+# ("K10946", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1750316774.113839"),
+# ("K11022", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1751077055.362119"),
+# ("K10940", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1750299763.780549"),
+# ("K10947", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1747970918.887629"),
+# ("K10878", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1749608339.279729"),
+# ("K10829", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1748833956.802759"),
+# ("K10657", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1747102001.785179"),
+# ("K10912", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1745111933.964379"),
+# ("K10904", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1749882835.133889"),
+# ("Ｋ10852", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1749345211.241869"),
+# ("K10856", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1749175127.046869"),
+# ("K10828", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1748846965.701969"),
+# ("K10734", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1748047374.955739"),
+# ("K10743", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1748048920.715899"),
+# ("K10816", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1748756848.836819"),
+# ("K10753", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1748166023.022069"),
+# ("K10678", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1747370353.177019"),
+# ("K10830", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1748846659.931829"),
+# ("K10809", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1748676348.363089"),
+# ("K10777", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1748394311.142189"),
+# ("K10737", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1748049745.899569"),
+# ("K10733", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1747992941.565599"),
+# ("K10722", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1747819208.411679"),
+# ("K10443", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1745025330.220349"),
+# ("K10741", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1748072829.246809"),
+# ("K10695", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1747532429.798909"),
+# ("K10690", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1747470898.122769"),
+# ("K10692", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1747476979.836949"),
+# ("K10693", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1747479391.744719"),
+# ("K10652", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1747011652.959739"),
+# ("K10648", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1746958370.349669"),
+# ("K10493", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1745463239.815139"),
+# ("K10436", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1744768691.995339"),
+# ("K10315", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743817835.567639"),
+# ("K10664", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1747211574.702509"),
+# ("K10656", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1747101528.159149"),
+# ("K10504", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1745660375.338389"),
+# ("K10480", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1745223239.461619"),
+# ("K10636", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1746843666.487089"),
+# ("K10557", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1746233161.024979"),
+# ("K10570", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1746258407.141569"),
+# ("K10521", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1745836346.663859"),
+# ("K10379", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1744333918.850569"),
+# ("K10474", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1745224778.508519"),
+# ("K10477", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1745234502.362889"),
+# ("K10467", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1745130518.862069"),
+# ("K10460", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1744880267.423989"),
+# ("K10356", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1744021868.527579"),
+# ("K10476", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1745228893.995329"),
+# ("K10361", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743927368.694629"),
+# ("K10321", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743839150.684769"),
+# ("K10254", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743210599.948089"),
+# ("K10226", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1742609584.390449"),
+# ("K10419", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1744615958.372209"),
+# ("K10386", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1744418862.131009"),
+# ("K10389", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1744444469.193429"),
+# ("K10340", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743921156.150649"),
+# ("K10316", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743818081.695799"),
+# ("K10261", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743232281.841449"),
+# ("K10324", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743815121.238919"),
+# ("K10276", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743323388.664859"),
+# ("K10239", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743128610.169759"),
+# ("K10245", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743146164.875739"),
+# ("K10199", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1742778995.597229"),
+# ("K10175", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1742629152.427609"),
+# ("K10135", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1742111349.570439"),
+# ("K10078", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741948153.138349"),
+# ("K9859", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740204308.982409"),
+# ("K10256", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743229523.063599"),
+# ("K10235", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1743063185.317389"),
+# ("K10211", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1742886466.181859"),
+# ("K10088", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1742001842.279459"),
+# ("K10096", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1742025165.363889"),
+# ("K10045", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741576551.562849"),
+# ("K10057", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741339303.221719"),
+# ("K9867", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740192610.127519"),
+# ("K10091", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1742021904.803429"),
+# ("K10074", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741928237.297219"),
+# ("K10066", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741848593.523719"),
+# ("K10055", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741681831.117289"),
+# ("K10048", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741569618.764349"),
+# ("K10069", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741052176.875869"),
+# ("K9978", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741074430.812109"),
+# ("K9898", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740446486.406089"),
+# ("K10092", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1742021074.374089"),
+# ("K10101", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1742003145.938069"),
+# ("K9977", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741069763.546619"),
+# ("K9944", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740816004.547969"),
+# ("K9917", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1739149582.620109"),
+("K10039", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741504334.060739"),
+("K10028", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741500521.556309"),
+("K10003", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1741395077.697029"),
+("K9951", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740880635.179369"),
+("K9903", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740470294.188869"),
+("K9897", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740357126.369589"),
+("K9819", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1739758305.373539"),
+("K9969", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740984397.916529"),
+("K9937", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740794436.040779"),
+("K9906", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740537061.196039"),
+("K9888", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740359350.613299"),
+("K9889", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740360201.146309"),
+("K9875", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740274840.097609"),
+("K9866", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740220246.036299"),
+("K9860", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740204967.111079"),
+("K9863", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740208910.251229"),
+("K9848", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1740102083.886479"),
+("K9191", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1733967585.626069"),
+("K9331", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1735284318.589229"),
+("K9816", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1739687771.108489"),
+("K9767", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1739069065.730549"),
+("K9731", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1739084962.291369"),
+("K9706", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1738979768.026209"),
+("K9678", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1738549314.018249"),
+("K9627", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1738047137.206309"),
+("K9424", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1736644272.852919"),
+("K9691", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1738739221.390169"),
+("K9670", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1738483163.318779"),
+("K9639", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1738310978.712339"),
+("K9579", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1737855651.818889"),
+("K9568", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1737790828.870649"),
+("K9492", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1737166680.984669"),
+("K9398", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1736476646.907359"),
+("K9310", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1735111308.875119"),
+("K9247", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1734398895.047989"),
+("K9580", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1737856178.748029"),
+("K9531", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1737357935.398599"),
+("K9514", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1737260595.415859"),
+("K9384", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1736301775.193869"),
+("K9444", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1736752157.604289"),
+("K9446", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1736755844.551989"),
+("K9416", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1736580272.387799"),
+("K9385", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1736303678.181349"),
+("K9378", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1736218771.953099"),
+("K9435", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1736732331.946349"),
+("K9422", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1736645861.937759"),
+("K9327", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1735275904.361719"),
+("K9286", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1734850244.295729"),
+("K9290", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1734768790.589959"),
+("K9243", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1734328904.502829"),
+("K8689", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728890621.417659"),
+("K9341", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1735952460.077279"),
+("K9303", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1735022870.081579"),
+("K9272", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1734744678.471479"),
+("K9278", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1734772619.525959"),
+("K9267", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1734677701.277059"),
+("K9253", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1734489951.872989"),
+("K9229", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1734223500.533889"),
+("K9230", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1734247432.761279"),
+("K9234", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1734243053.929529"),
+("K9219", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1734159503.604259"),
+("K9181", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1733815822.283529"),
+("K9169", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1733711720.575749"),
+("K9102", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1733036929.485959"),
+("K8918", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1731223734.432159"),
+("K8622", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728552976.008269"),
+("K9176", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1733738474.230009"),
+("K9125", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1733291170.608959"),
+("K9053", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1732683610.041849"),
+("K9092", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728090501.658049"),
+("K9088", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1732947477.812559"),
+("K9058", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1732756055.328009"),
+("K9005", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1732151660.183079"),
+("K8969", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1731808818.408059"),
+("K8762", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1729734833.769739"),
+("K9047", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1732590927.916489"),
+("K8986", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1731978625.810039"),
+("K8896", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1730618847.969709"),
+("K8968", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1731805717.352659"),
+("K8965", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1731749078.933739"),
+("K8932", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1731460546.323019"),
+("K8978", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1731288364.631339"),
+("K8912", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1731201975.423879"),
+("K8840", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1730543132.340359"),
+("K8885", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1730973233.291189"),
+("K8873", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1730797657.093559"),
+("K8849", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1730624075.652659"),
+("K8802", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1730024650.413639"),
+("K8784", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1729930421.491239"),
+("K8862", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1730699285.129009"),
+("K8812", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1730273057.806599"),
+("K8806", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1730169866.053989"),
+("K8772", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1729819148.773259"),
+("K8747", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1729565863.901089"),
+("K8574", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728177535.099869"),
+("K8288", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1725589600.837879"),
+("K8670", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728809369.389029"),
+("K8657", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728781783.683809"),
+("K8620", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728549330.843449"),
+("K8341", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1726136968.257549"),
+("K8728", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1729319955.694089"),
+("K8658", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728783427.211409"),
+("K8654", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728726746.660919"),
+("K8623", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728553235.096579"),
+("K8621", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728549228.186349"),
+("K8595", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728284346.758469"),
+("K8524", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1727573362.101199"),
+("K8678", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728869712.286719"),
+("K8640", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1728697580.154879"),
+("K8553", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1727934233.146789"),
+("K8551", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1727918640.637339"),
+("K8534", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1727749948.225799"),
+("K8370", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1726368980.096519"),
+("K8385", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1725674312.344909"),
+("K8530", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1727677954.644949"),
+("K8517", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1727571596.269989"),
+("K8503", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1727495632.604549"),
+("K8495", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1727054523.383299"),
+("K8557", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1725180434.671949"),
+("K8190", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1724810850.385059"),
+("K8487", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1727316757.264109"),
+("K8460", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1727053212.569849"),
+("K8465", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1727075761.309679"),
+("K8445", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1726972580.966299"),
+("K8439", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1726910757.780159"),
+("K8403", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1726479411.227159"),
+("K8006", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1723271216.399909"),
+("K8387", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1726448459.380049"),
+("K8275", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1725356214.995729"),
+("K7948", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1722648377.916609"),
+("K8270", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1725586953.688649"),
+("K8194", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1724829874.367969"),
+("K8150", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1724551225.906409"),
+("K8112", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1724203159.429679"),
+("K7104", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1715995403.483969"),
+("K8230", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1725079494.183049"),
+("K8135", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1724411586.376719"),
+("K8044", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1723617211.232829"),
+("K7518", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1719368531.963179"),
+("K8131", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1724146288.536909"),
+("K8086", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1723971283.275419"),
+("K8079", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1723944530.947179"),
+("K8056", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1723793414.790639"),
+("K7950", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1722735835.943079"),
+("K7830", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1721469374.631729"),
+("K8059", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1723774870.031509"),
+("K8045", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1723625093.756409"),
+("K8038", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1723531361.409559"),
+("K7964", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1722848130.314979"),
+("K7880", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1722240883.800229"),
+("K7853", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1722073350.592259"),
+("K7779", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1721444373.009049"),
+("K7902", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1722421557.233189"),
+("K7896", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1722408998.399189"),
+("K7848", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1721988713.370619"),
+("K7786", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1721544188.521279"),
+("K7823", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1721868461.345369"),
+("K7692", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1720834876.206419"),
+("K7240", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1716950594.660109"),
+("K7718", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1721019014.240459"),
+("K7687", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1720749320.667549"),
+("K7634", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1720256193.665589"),
+("K7572", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1719716806.514489"),
+("K7635", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1720141300.485799"),
+("K7617", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1720144226.907499"),
+("K7599", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1719982586.485169"),
+("K7498", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1719283837.576279"),
+("K7563", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1719711974.590399"),
+("K7543", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1719638753.398019"),
+("K7546", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1719641163.761469"),
+("K7506", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1719312254.869179"),
+("K7505", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1719300346.260499"),
+("K7448", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1719022726.965719"),
+("K7431", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1718772219.782569"),
+("K7402", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1718501318.398559"),
+("K7373", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1718350306.449879"),
+("K7391", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1717813419.005699"),
+("K7211", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1716702617.070549"),
+("K7339", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1717979366.041919"),
+("K7321", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1717832827.238619"),
+("K7312", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1717754068.227159"),
+("K7242", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1716888953.602009"),
+("K7330", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1717898807.499119"),
+("K7331", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1717912910.262159"),
+("K7268", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1717231806.937359"),
+("K7225", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1716862879.677609"),
+("K7253", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1716891667.459929"),
+("K7185", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1716599044.156519"),
+("K7128", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1716096641.415239"),
+("K7123", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1716082739.662799"),
+("K6876", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1714197256.779829"),
+("K7103", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1715994783.998179"),
+("K7026", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1715304047.402939"),
+("K7019", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1715217438.961989"),
+("K7011", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1715135516.276269"),
+("K6967", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1714811016.065049"),
+("K6953", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1714697151.998819"),
+("K6894", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1714295317.230999"),
+("K6955", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1714784470.822909"),
+("K6867", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1714178963.121809"),
+("K6878", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1714033972.745649"),
+("K6834", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1713749607.821719"),
+("K6822", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1713690405.046429"),
+("K6667", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1712300458.496439"),
+("K6820", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1713662430.903019"),
+("K6771", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1713253281.047979"),
+("K6738", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1712993585.079519"),
+("K6733", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1712990029.001369"),
+("K6668", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1712298047.901059"),
+("K6252", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1709350498.088709"),
+("K6719", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1712816228.396929"),
+("K6694", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1712457471.064109"),
+("K6693", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1712465276.374569"),
+("K6639", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1712038468.224639"),
+("K6618", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1711859651.752649"),
+("K6615", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1711860774.007079"),
+("K6531", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1711258213.569689"),
+("K6527", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1711244425.331719"),
+("K6678", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1710916344.003359"),
+("K6692", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1712453874.698279"),
+("K6661", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1712285537.201589"),
+("K6612", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1711777217.283909"),
+("K6577", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1711676310.606499"),
+("K6433", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1710643860.895019"),
+("K6573", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1711675331.519519"),
+("K6439", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1710667738.576859"),
+("K6383", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1710400871.778479"),
+("K6449", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1710048913.077539"),
+("K6307", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1709947827.850529"),
+("K6359", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1710206226.788249"),
+("K6347", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1710120102.686789"),
+("K6327", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1709871289.545439"),
+("K6222", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1709113686.941369"),
+("K6215", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1709081466.833119"),
+("K5975", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1707441716.805039"),
+("K6241", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1709272369.991549"),
+("K6182", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1708909957.119169"),
+("K6175", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1708822286.857779"),
+("K6155", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1708760016.897369"),
+("K6069", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1708220069.106799"),
+("K6051", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1708130879.099439"),
+("K5933", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1707019790.962779"),
+("K5907", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1706922261.247659"),
+("K5903", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1706857463.050629"),
+("K5986", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1707529883.600609"),
+("K5971", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1707382481.807099"),
+("K5838", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1706407215.931199"),
+("K5491", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1703041746.147899"),
+("K5870", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1706576694.084669"),
+("K5840", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1706404125.968159"),
+("K5711", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1705454597.857229"),
+("K5716", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1705485203.528069"),
+("K5859", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1706403244.940079"),
+("K5823", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1706316254.250789"),
+("K5787", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1705993720.133289"),
+("K5673", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1705198024.526879"),
+("K5481", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1702876915.755079"),
+("K5775", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1705971939.592699"),
+("K5674", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1705199365.326559"),
+("K5484", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1702961830.843929"),
+("K5467", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1702786065.388909"),
+("K5463", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1702774946.338809"),
+("5435", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1702524823.958959"),
+("K5533", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1700790025.319769"),
+("K2641", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1678260074.280989"),
+("K5419", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1702348607.744959"),
+("K5396", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1702181007.442419"),
+("5374", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1702029997.495529"),
+("K5360", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1701918725.353339"),
+("K5333", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1701677973.847189"),
+("K5325", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1701590609.535789"),
+("K5264", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1700460250.266349"),
+("5236", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1700892138.586839"),
+("K5165", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1700357275.032049"),
+("K5181", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1700352549.269279"),
+("K5008", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1697764579.597019"),
+("K5090", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1699665632.009409"),
+("K5085", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1699598585.907849"),
+("K5062", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1699406986.576189"),
+("K5023", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1698390877.259909"),
+("K5004", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1698720351.921559"),
+("K4950", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1698114285.742249"),
+("K4935", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1697958660.001739"),
+("K4889", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1697537444.654929"),
+("K4878", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1697354892.998589"),
+("K4795", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1691480132.974559"),
+("K4594", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1694396891.739689"),
+("K4803", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1696640080.209709"),
+("K4797", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1696490714.485349"),
+("k4763", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1696040048.817829"),
+("K4728", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1695607480.291749"),
+("K4704", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1695442870.685029"),
+("K4658", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1695015456.741179"),
+("K4533", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1693965116.391449"),
+("K4735", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1695633421.855309"),
+("K4698", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1695361858.558919"),
+("K4626", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1694773685.493919"),
+("K4721", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1695539117.431009"),
+("K4657", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1694997724.820299"),
+("K4639", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1694915848.837339"),
+("K4631", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1694842177.656709"),
+("K4541", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1694068694.728169"),
+("k4320", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1692237916.043709"),
+("K4536", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1693969507.685009"),
+("K4497", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1693646139.953299"),
+("K4449", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1693275516.437679"),
+("K4425", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1693100609.680079"),
+("K4405", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1693013326.321939"),
+("K4342", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1692408964.755079"),
+("K4340", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1691895404.179219"),
+("K4244", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1691544944.207399"),
+("k4426", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1693102021.274549"),
+("K4323", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1692252171.896909"),
+("K4281", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1691901491.105879"),
+("K4246", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1691546091.581269"),
+("K4212", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1691220362.234119"),
+("K4243", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1691045383.857029"),
+("K4162", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1690783921.062739"),
+("K4137", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1690602728.636159"),
+("4036", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1689576560.236759"),
+("K3924", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1688787030.788609"),
+("K3944", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1688886421.349939"),
+("K4062", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1689759643.815039"),
+("K3915", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1688703656.415629"),
+("K3833", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1688282711.999089"),
+("K3727", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1687415012.154779"),
+("K3702", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1687168183.920869"),
+("K3837", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1688284494.028469"),
+("K3630", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1686640899.604949"),
+("K3587", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1686358138.129289"),
+("k3533", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1685671738.309739"),
+("3483", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1685235541.414689"),
+("K3481", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1685174119.612859"),
+("K3449", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1684718572.813659"),
+("K3447", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1684716509.741039"),
+("K3437", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1684636147.804199"),
+("K3344", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1683943945.340719"),
+("3340", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1683938937.541189"),
+("K3343", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1683941622.957319"),
+("K3313", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1683704304.820849"),
+("k3255", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1683093914.118069"),
+("K3178", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1682414195.014359"),
+("K3175", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1682330145.397199"),
+("K3140", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1682155655.815019"),
+("K3100", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1681865825.395619"),
+("K3093", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1681780596.099059"),
+("K3225", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1682841114.908129"),
+("K3182", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1682470680.054659"),
+("K3151", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1682219993.303829"),
+("K3129", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1682127817.777369"),
+("K3001", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1681004991.037349"),
+("K2997", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1680770672.250399"),
+("K3048", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1681375578.187569"),
+("K2929", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1680411364.027839"),
+("k2921", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1680340575.122009"),
+("K2042", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1673677359.462819"),
+("K2894", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1680082045.454719"),
+("K2893", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1679794629.455169"),
+("K2876", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1679965831.379439"),
+("K2841", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1679722901.768959"),
+("K2808", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1679376246.776919"),
+("ｋ2794", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1679276303.514239"),
+("K2764", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1679104837.232249"),
+("K2682", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1678517015.608219"),
+("K2640", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1678252853.682219"),
+("K2603", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1677982318.901549"),
+("K2496", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1677130126.076999"),
+("K2270", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1675301196.277799"),
+("K2572", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1677735068.298789"),
+("K2475", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1676961309.519189"),
+("K2464", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1676854639.550079"),
+("K2433", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1676684873.138749"),
+("K2432", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1676682025.790269"),
+("K2423", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1676608486.728089"),
+("K2355", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1676021745.138629"),
+("K1998", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1673227702.442359"),
+("K2293", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1675491434.788219"),
+("K2118", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1674954640.735829"),
+("K2203", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1674870537.107609"),
+("K2153", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1674448541.904549"),
+("K2272", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1675319980.414189"),
+("K2189", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1674783773.953459"),
+("K2201", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1673658386.241909"),
+("K1959", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1672817500.031769"),
+("K2129", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1674352284.210449"),
+("K2141", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1674371535.340289"),
+("K2035", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1673602938.961489"),
+("K2140", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1674370562.459909"),
+("K2123", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1674349656.236009"),
+("K2094", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1674195449.534489"),
+("K2075", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1674090281.414269"),
+("K2061", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1673774258.575889"),
+("K2001", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1673238704.812659"),
+("K2004", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1673243580.454989"),
+("K1937", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1672205404.246849"),
+("K1853", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1671239252.572329"),
+("K2011", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1673405095.112169"),
+("K1880", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1671417780.272889"),
+("K1872", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1671343557.779299"),
+("K1935", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1672202767.607119"),
+("K1914", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1671947437.635189"),
+("K1870", "https://app.slack.com/client/TP23BV3JN/G01JYK55H5W/thread/G01JYK55H5W-1671339819.414169"),
+]
+# ==================
+
+# Chrome 起動（DevToolsログ有効化＆キャッシュ無効化）
+options = webdriver.ChromeOptions()
+options.add_argument(f"user-data-dir={USER_DATA_DIR}")
+options.add_argument(f"--profile-directory={PROFILE_NAME}")
+options.add_argument("--disable-cache")
+options.add_argument("--disk-cache-size=0")
+options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
+
+driver = webdriver.Chrome(
+    service=Service(ChromeDriverManager().install()),
+    options=options
+)
+
+# 重複カウント用
+seen = {}
+
+for unique_id, post_url in post_data:
+    print(f"\n🔎 投稿を開きます: {unique_id}")
+
+    # ==========================
+    # キャッシュだけクリア（ログインCookieは残す）
+    # ==========================
+    try:
+        driver.execute_cdp_cmd("Network.clearBrowserCache", {})
+    except Exception as e:
+        print(f"⚠️ キャッシュクリア失敗: {e}")
+
+    # ログをクリア
+    try:
+        driver.get_log("performance")
+    except:
+        pass
+
+    # まずチャンネルビューにアクセス
+    channel_url = "/".join(post_url.split("/")[:5])
+    driver.get(channel_url)
+    time.sleep(5)
+
+    # JSを実行してスレッドを強制的に開く
+    driver.execute_script("window.location.href = arguments[0];", post_url)
+    time.sleep(6)  # スレッド読み込み待ち
+
+    # DevToolsログから files.slack.com のリクエストURLを抽出
+    logs = driver.get_log("performance")
+    file_urls = []
+    for entry in logs:
+        try:
+            msg = json.loads(entry["message"])
+            url = (
+                msg.get("message", {})
+                .get("params", {})
+                .get("request", {})
+                .get("url")
+            )
+            if not url:
+                continue
+            if "files.slack.com" in url:
+                ext = os.path.splitext(url.split("?")[0])[1].lower()
+                if ext in IMAGE_EXTS:
+                    file_urls.append(url)
+        except Exception:
+            continue
+
+    # 重複削除（順序維持）
+    file_urls = list(dict.fromkeys(file_urls))
+
+    # フォールバック：DevToolsで取れなかった場合はDOMから取得
+    if not file_urls:
+        print("⚠️ DevToolsログに画像なし → DOMから取得します")
+        links = driver.find_elements(By.CSS_SELECTOR, "a[href*='files.slack.com'], img[src*='files.slack.com']")
+        file_urls = []
+        for a in links:
+            url = a.get_attribute("href") or a.get_attribute("src")
+            if url and any(url.lower().endswith(ext) for ext in IMAGE_EXTS):
+                file_urls.append(url)
+        file_urls = list(dict.fromkeys(file_urls))
+
+    if not file_urls:
+        print(f"❌ 画像が見つかりませんでした: {post_url}")
+        continue
+
+    # 上限指定
+    if MAX_DOWNLOADS is not None:
+        file_urls = file_urls[:MAX_DOWNLOADS]
+
+    # 重複確認
+    seen[unique_id] = seen.get(unique_id, 0) + 1
+    dup_suffix = f"_{seen[unique_id]}" if seen[unique_id] > 1 else ""
+
+    # ==========================
+    # Cookie は維持 → Slack ログインも維持される
+    # ==========================
+    cookies = {c['name']: c['value'] for c in driver.get_cookies()}
+
+    for idx, file_url in enumerate(file_urls, start=1):
+        res = requests.get(file_url, cookies=cookies)
+        if res.status_code == 200:
+            file_ext = os.path.splitext(file_url.split("?")[0])[1].lower()
+            file_name = f"{unique_id}_{idx}{dup_suffix}{file_ext}"
+            file_path = os.path.join(save_dir, file_name)
+            with open(file_path, "wb") as f:
+                f.write(res.content)
+            print(f"✅ 保存完了: {file_path}")
+        else:
+            print(f"❌ ダウンロード失敗 {file_url} (status {res.status_code})")
+
+driver.quit()

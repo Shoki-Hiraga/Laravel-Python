@@ -6,6 +6,8 @@ use App\Http\Controllers\PythonController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\PurchaseResultsImageController;
+use App\Http\Controllers\PythonRunnerController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +65,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/python-runner', [PythonRunnerController::class, 'index'])->name('python.runner');
+    Route::post('/python-runner/execute', [PythonRunnerController::class, 'execute'])->name('python.execute');
 });
 
 require __DIR__.'/auth.php';
