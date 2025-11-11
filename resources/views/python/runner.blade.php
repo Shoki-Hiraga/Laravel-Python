@@ -44,7 +44,7 @@
                 <form action="{{ route('python.execute') }}" method="POST" class="runpy-item">
                     @csrf
                     <input type="hidden" name="file" value="{{ $file }}">
-                    <button class="runpy-button">実行：{{ basename($file) }}</button>
+                    <button class="runpy-button">実行 / ログを見る：{{ basename($file) }}</button>
                 </form>
 
             @endforeach

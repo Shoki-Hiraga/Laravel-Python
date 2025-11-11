@@ -17,10 +17,8 @@ class PythonRunnerWindowsController extends Controller
 
         foreach ($iterator as $file) {
             if ($file->isFile() && $file->getExtension() === 'py') {
-
                 $filepath = str_replace('\\', '/', $file->getPathname());
                 $basedir  = str_replace('\\', '/', app_path('Python'));
-
                 $relative = str_replace($basedir . '/', '', $filepath);
                 $files[] = $relative;
             }
@@ -38,38 +36,95 @@ class PythonRunnerWindowsController extends Controller
         $logPath = storage_path("logs/{$scriptName}.log");
         $pidPath = storage_path("logs/{$scriptName}.pid");
 
-        file_put_contents($logPath, ''); // ログ初期化
+        // ✅ PID が存在し、動いていれば → すでに実行中
+        if (file_exists($pidPath)) {
+            $pid = trim(file_get_contents($pidPath));
+            if ($this->isProcessRunning($pid)) {
+                return redirect()->route('python.log', $relative);
+            }
+        }
 
-        // ✅ Windows のバックグラウンド実行
-        $cmd = "start /B python \"{$scriptPath}\" >> \"{$logPath}\" 2>&1";
-        shell_exec($cmd);
+        // ✅ 新規実行のみ初期化
+        @touch($logPath);   // ← これならロックされてても OK
 
-        // WindowsではPID取得不可、仮で 'win' と入れておく
-        file_put_contents($pidPath, 'win');
+        // ✅ PowerShell Start-Process で PID を取得
+        $ps = 'powershell -Command '
+            . '"$p = Start-Process python '
+            . ' -ArgumentList \'-u "' . $scriptPath . '"\' '
+            . ' -RedirectStandardOutput \'' . $logPath . '\' '
+            . ' -RedirectStandardError \'' . $logPath . '\' '
+            . ' -PassThru; '
+            . 'Write-Output $p.Id"';
+
+        $pid = trim(shell_exec($ps));
+        file_put_contents($pidPath, $pid);
 
         return redirect()->route('python.log', $relative);
     }
+
 
     public function log($relative)
     {
         $scriptName = str_replace(['/', '\\', '.py'], '_', $relative);
 
         $logPath = storage_path("logs/{$scriptName}.log");
+        $pidPath = storage_path("logs/{$scriptName}.pid");
 
-        $log = file_exists($logPath) ? file_get_contents($logPath) : '';
+        $log = '';
 
-        // ✅ Windows → SJIS → UTF-8 にして文字化け対策
+        if (file_exists($logPath)) {
+            $fp = fopen($logPath, 'r');
+
+            // ✅ ファイル末尾から読む（最大30KB = 約3000行想定）
+            fseek($fp, -30000, SEEK_END);   // ← サイズ大きければ後ろだけ読む
+            $log = fread($fp, 30000);
+
+            fclose($fp);
+        }
+
         $log = mb_convert_encoding($log, 'UTF-8', 'CP932,SJIS-win,ASCII');
 
-        return view('python.log', [
-            'relative' => $relative,
-            'log' => $log,
-            'isRunning' => false  // Windowsでは停止管理しない
-        ]);
+        $isRunning = false;
+        if (file_exists($pidPath)) {
+            $pid = trim(file_get_contents($pidPath));
+
+            $isRunning = $this->isProcessRunning($pid);
+        }
+
+        return view('python.log', compact('relative', 'log', 'isRunning'));
     }
 
-    public function stop()
+    public function stop($relative)
     {
-        return back()->with('error', 'Windowsでは停止処理に対応していません');
+        $scriptName = str_replace(['/', '\\', '.py'], '_', $relative);
+        $pidPath = storage_path("logs/{$scriptName}.pid");
+
+        if (!file_exists($pidPath)) {
+            return back()->with('error', 'PIDファイルが存在しません。再実行してください。');
+        }
+
+        $pid = trim(file_get_contents($pidPath));
+
+        // ✅ プロセスが動いているかチェック
+        if (!$this->isProcessRunning($pid)) {
+            unlink($pidPath);
+            return back()->with('success', "既に停止していました (PID: {$pid})");
+        }
+
+        // ✅ taskkill（子プロセスも含めて強制停止）
+        exec("taskkill /PID {$pid} /T /F");
+
+        unlink($pidPath);
+
+        return back()->with('success', "スクリプトを停止しました (PID: {$pid})");
+    }
+
+    private function isProcessRunning($pid)
+    {
+        $pid = intval($pid);
+        exec("tasklist /FI \"PID eq {$pid}\" 2>NUL", $output);
+
+        // “情報:“ の行は除外して判定
+        return count($output) > 1 && !str_contains($output[1], '情報:') && !str_contains($output[1], 'No tasks are running');
     }
 }
