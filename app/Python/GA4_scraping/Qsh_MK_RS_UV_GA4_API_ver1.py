@@ -19,8 +19,8 @@ output_file = os.path.join(file_directory, file_name)
 # 出力CSVのヘッダー
 header_row = ['ランディングページURL', 'セッションメディア', 'CV数（査定依頼完了）', 'セッション数', 'CVR（%）']
 
-set_start_date = "2025-05-01"
-set_end_date = "2025-06-01"
+set_start_date = "2025-11-03"
+set_end_date = "2025-11-09"
 
 SESSION_MEDIUM_FILTER = "organic"
 

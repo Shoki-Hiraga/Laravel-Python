@@ -3,6 +3,8 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from setting_file.header import *
 
+request_count = 0  # クエリカウンター
+
 # APIキーの選択
 api_key_index = 1 # 使用するAPIキーのインデックス番号
 api_keys = {
@@ -21,7 +23,7 @@ google_api_key = api_keys[api_key_index] # APIキーの取得
 CUSTOM_SEARCH_ENGINE_ID = gcp_api.custom_search_ENGINE_ID_current
 
 # リクエストの遅延時間を定義
-delaytime = 2.000002
+delaytime = 3.000002
 
 
 # ファイルパス
@@ -50,10 +52,13 @@ with open(output_file, mode='w', newline='', encoding='utf-8') as file:
 
 # 検索とCSV出力
 def search_and_write_to_csv(keyword):
+    global request_count  # ← 関数の先頭へ移動
+
     try:
         search_results = []
         for page in range(max_pages_to_fetch):
             start_index = page * results_per_page + 1
+            print(f"[REQUEST] KW: {keyword} / Page: {page+1}")
 
             res = service.cse().list(
                 q=keyword,
@@ -61,6 +66,10 @@ def search_and_write_to_csv(keyword):
                 num=results_per_page,
                 start=start_index
             ).execute()
+
+            # リクエスト成功したのでカウント
+            request_count += 1
+            print(f"[API REQUEST] {request_count} 回目のリクエストに成功しました")
 
             items = res.get("items", [])
             if not items:

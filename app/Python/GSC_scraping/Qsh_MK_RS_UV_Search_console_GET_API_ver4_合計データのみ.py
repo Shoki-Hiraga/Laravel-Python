@@ -30,8 +30,8 @@ service = build('webmasters', api_version, credentials=credentials)
 # 指定したURLに一致したデータを取得する関数を定義します
 def get_search_url_data(site_url, page_url):
     request = {
-        'startDate': '2025-02-01',
-        'endDate': '2025-02-28',
+        'startDate': '2025-11-03',
+        'endDate': '2025-11-10',
         'dimensions': ['page'],
         'searchType': 'web',
         'dimensionFilterGroups': [{
