@@ -7,6 +7,7 @@ use App\Http\Controllers\FormController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\PurchaseResultsImageController;
 use App\Http\Controllers\PythonRunnerController;
+use App\Http\Controllers\PythonRunnerWindowsController;
 
 
 /*
@@ -67,22 +68,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// ---- Python Runner (環境判定して Controller 切り替え) ----
 Route::middleware(['auth'])->group(function () {
-    Route::get('/python-runner', [PythonRunnerController::class, 'index'])->name('python.runner');
-    Route::post('/python-runner/execute', [PythonRunnerController::class, 'execute'])->name('python.execute');
-});
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/python-runner', [PythonRunnerController::class, 'index'])->name('python.runner');
-    Route::post('/python-runner/execute', [PythonRunnerController::class, 'execute'])->name('python.execute');
-
-    Route::get('/python-log/{file}', [PythonRunnerController::class, 'log'])
-        ->where('file', '.*')
-        ->name('python.log');
-
-    Route::post('/python-stop/{file}', [PythonRunnerController::class, 'stop'])
-        ->where('file', '.*')
-        ->name('python.stop');
+    if (app()->environment('local')) {
+        // ✅ Windows / ローカル環境
+        Route::get('/python-runner', [PythonRunnerWindowsController::class, 'index'])->name('python.runner');
+        Route::post('/python-runner/execute', [PythonRunnerWindowsController::class, 'execute'])->name('python.execute');
+        Route::get('/python-log/{file}', [PythonRunnerWindowsController::class, 'log'])->where('file', '.*')->name('python.log');
+        Route::post('/python-stop/{file}', [PythonRunnerWindowsController::class, 'stop'])->where('file', '.*')->name('python.stop');
+    } else {
+        // ✅ Linux / 本番環境
+        Route::get('/python-runner', [PythonRunnerController::class, 'index'])->name('python.runner');
+        Route::post('/python-runner/execute', [PythonRunnerController::class, 'execute'])->name('python.execute');
+        Route::get('/python-log/{file}', [PythonRunnerController::class, 'log'])->where('file', '.*')->name('python.log');
+        Route::post('/python-stop/{file}', [PythonRunnerController::class, 'stop'])->where('file', '.*')->name('python.stop');
+    }
 });
 
 require __DIR__.'/auth.php';

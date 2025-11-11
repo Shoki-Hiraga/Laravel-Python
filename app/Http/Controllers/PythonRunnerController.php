@@ -36,7 +36,7 @@ class PythonRunnerController extends Controller
     public function execute(Request $request)
     {
         $relative = $request->file;
-        $scriptPath = app_path('Python/' . $relative);
+        $scriptPath = app_path("Python/{$relative}");
         $scriptName = str_replace(['/', '\\', '.py'], '_', $relative);
 
         $logPath = storage_path("logs/{$scriptName}.log");
@@ -50,12 +50,11 @@ class PythonRunnerController extends Controller
             }
         }
 
-        // ✅ 実行前にログ初期化
-        file_put_contents($logPath, '');
+        file_put_contents($logPath, '');  // ✅ ログ初期化
 
-        // ✅ 実行
+        // ✅ Linux 用 nohup 実行
         $cmd = "nohup python3 -u \"{$scriptPath}\" >> \"{$logPath}\" 2>&1 & echo $!";
-        $pid = trim(shell_exec($cmd));
+        $pid = trim(shell_exec($cmd));   // ← Linux だと PID が返る！
 
         file_put_contents($pidPath, $pid);
 
@@ -70,6 +69,11 @@ class PythonRunnerController extends Controller
         $pidPath = storage_path("logs/{$scriptName}.pid");
 
         $log = file_exists($logPath) ? file_get_contents($logPath) : '';
+
+        // ✅ ★ここを追加（文字コード変換）
+        // CP932(SJIS) → UTF-8 に変換
+        $log = mb_convert_encoding($log, 'UTF-8', 'CP932,SJIS-win,ASCII');
+
         $pid = file_exists($pidPath) ? trim(file_get_contents($pidPath)) : null;
 
         $isRunning = $pid && $this->isRunning($pid);

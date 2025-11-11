@@ -1,5 +1,5 @@
 <x-app-layout>
-
+<link rel="stylesheet" href="{{ asset('css/runpy.css') }}">
 <div class="runpy-wrapper">
 
     <h2>{{ $relative }} のログ</h2>
@@ -15,7 +15,7 @@
 
     <a href="{{ route('python.runner') }}" class="runpy-button">戻る</a>
 
-    <div id="log-area" class="runpy-output">{{ $log }}</div>
+    <div id="log-area" class="runpy-output"><pre>{{ $log }}</pre></div>
 
 </div>
 
