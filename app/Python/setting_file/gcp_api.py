@@ -4,6 +4,7 @@ custom_search_API_KEY_idea = 'AIzaSyC-1ThsTnls80ExjIz8WDeegwWyfORBJws'
 custom_search_API_KEY_shotest = 'AIzaSyAcoQ8TlkgnCStxnkOxe-T1xsq1pZLWrs4'
 custom_search_API_KEY_2sho = 'AIzaSyCtwQX2Q5vMALvcvepXmdSXEKThckT6SQg'
 custom_search_API_KEY_seohira = 'AIzaSyD10nCaCN4I6MLa5K1H9fb1XHGFIB_a9uk'
+custom_search_API_KEY_current_data_ana_p = "AIzaSyAZzY1ORHFdR1Zu9XrsRhHIg6IJur7zY6E"
 
 custom_search_ENGINE_ID_current = '307bfaa5c86da47f1'
 custom_search_ENGINE_ID_332r = '31ce91f34416a4e44'

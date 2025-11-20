@@ -1,0 +1,25 @@
+🔍 Universal Web App Screen Crawler
+📂 Scanning project tree...
+
+Total files scanned (excluding common vendor dirs): 194
+
+⚠️  No specific framework detected. Falling back to generic scan only.
+
+🔎 Scanning frontend frameworks (Nuxt / Next / Vue / React)...
+
+🔎 Scanning generic templates...
+
+==============================
+📊 Summary
+==============================
+Nuxt pages (pages/*.vue):   0
+Vue pages (pages/*.vue):    0
+Vue views (views/*.vue):    0
+Next.js pages:              0
+React pages (src/pages):    0
+Other pages (vue_like):     0
+Generic templates:          0
+------------------------------
+📘 合計 画面候補 (rough): 0
+==============================
+

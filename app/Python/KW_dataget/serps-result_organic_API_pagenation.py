@@ -1,6 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from datetime import date
 from setting_file.header import *
 
 request_count = 0  # クエリカウンター
@@ -13,7 +14,8 @@ api_keys = {
     3: gcp_api.custom_search_API_KEY_idea,
     4: gcp_api.custom_search_API_KEY_shotest,
     5: gcp_api.custom_search_API_KEY_2sho,
-    6: gcp_api.custom_search_API_KEY_seohira
+    6: gcp_api.custom_search_API_KEY_seohira,
+    7: gcp_api.custom_search_API_KEY_current_data_ana_p
 }
 
 google_api_key = api_keys[api_key_index] # APIキーの取得
@@ -48,11 +50,12 @@ if not os.path.exists(file_directory):
 
 with open(output_file, mode='w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
-    writer.writerow(["Keyword", "URL", "Meta Title"])
+    writer.writerow(["取得日", "順位", "Keyword", "URL", "Meta Title"])
 
 # 検索とCSV出力
 def search_and_write_to_csv(keyword):
-    global request_count  # ← 関数の先頭へ移動
+    global request_count
+    today = date.today().isoformat()  # '2025-01-15' のような形式
 
     try:
         search_results = []
@@ -67,7 +70,6 @@ def search_and_write_to_csv(keyword):
                 start=start_index
             ).execute()
 
-            # リクエスト成功したのでカウント
             request_count += 1
             print(f"[API REQUEST] {request_count} 回目のリクエストに成功しました")
 
@@ -83,9 +85,11 @@ def search_and_write_to_csv(keyword):
             time.sleep(delaytime)
             print(f"{delaytime}秒の遅延が完了しました")
 
+        # ▼ CSV 書き込み（取得日 → 順位 → その他）
         with open(output_file, mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
-            writer.writerows(search_results)
+            for index, row in enumerate(search_results, start=1):
+                writer.writerow([today, index] + row)
 
         print(f"Keyword '{keyword}' processed successfully. Found {len(search_results)} results.")
 
