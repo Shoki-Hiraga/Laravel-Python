@@ -1,16 +1,17 @@
 import os
 
-# ▼ 今のファイル(csv_output_path.py)の絶対パス
+# ▼ Laravelルートディレクトリに出力パスを作る
 CURRENT_FILE = os.path.abspath(__file__)
+PYTHON_ROOT = os.path.dirname(os.path.dirname(CURRENT_FILE))
+LARAVEL_ROOT = os.path.dirname(PYTHON_ROOT)
+laravel_out_root = os.path.join(LARAVEL_ROOT, "output")  # 例：ルート/output フォルダ
 
-# ▼ setting_file フォルダの親 → プロジェクトのルートと想定
+# ▼ Python-dev ルート直下に output フォルダを作る
+CURRENT_FILE = os.path.abspath(__file__)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(CURRENT_FILE))
+pydev_out_root = os.path.join(PROJECT_ROOT, "output")
 
-# ▼ ルート直下に output フォルダを作る
-out_root = os.path.join(PROJECT_ROOT, "output")
-
-
-# ---- 以下はあなたの既存データ ----
+# --- Windows設定 ---
 in_office = 'C:/Users/hiraga/Downloads'
 out_office = 'C:/Users/hiraga/Downloads'
 
