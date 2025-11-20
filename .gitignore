@@ -31,3 +31,7 @@ __pycache__/
 
 # AIキーや環境依存ファイル
 app/Python/**/AI_apikey.py
+app/Python/
+app/Python/setting_file/gcp_api.py
+app/Python/setting_file/api_yaml.py
+app/Python/setting_file/api_json.py
