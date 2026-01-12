@@ -1,37 +1,58 @@
-/.phpunit.cache
-/node_modules
-/public/build
-/public/hot
-/public/storage
+############################
+# Laravel / PHP
+############################
+/vendor/
+/node_modules/
+/public/build/
+/public/hot/
+/public/storage/
 /storage/*.key
-/vendor
-.env.backup
-.env.production
+
+.env
+.env.*
+!.env.example
+
 .phpunit.result.cache
-Homestead.json
-Homestead.yaml
-auth.json
+/.phpunit.cache
+
+############################
+# IDE / OS
+############################
+/.idea/
+/.vscode/
+/.fleet/
+.DS_Store
+Thumbs.db
+
+############################
+# Python
+############################
+**/__pycache__/
+*.pyc
+*.pyo
+
+############################
+# Python setting / secrets
+# ★重要：GitGuardian対策
+############################
+# 設定・認証・スクレイピング関連はすべて除外
+app/Python/setting_file/
+
+# APIキー・秘密情報が入りがちな単体ファイル
+app/Python/**/AI_apikey.py
+app/Python/**/gcp_api.py
+app/Python/**/api_yaml.py
+app/Python/**/api_json.py
+
+############################
+# Logs / outputs
+############################
+*.log
+*.csv
+*.zip
+
+############################
+# npm / yarn
+############################
 npm-debug.log
 yarn-error.log
-/.fleet
-/.idea
-/.vscode
-app/python-dev/setting_file/json_file
-app/python-dev//setting_file/yaml_file
-app/python-dev//setting_file/browser_login
-
-# app/Python 配下の設定ファイル系フォルダをすべて無視
-app/Python/setting_file/json_file/
-app/Python/setting_file/yaml_file/
-app/Python/setting_file/browser_login/
-
-# Pythonキャッシュはすべて無視
-**/__pycache__/
-__pycache__/
-
-# AIキーや環境依存ファイル
-app/Python/**/AI_apikey.py
-app/Python/
-app/Python/setting_file/gcp_api.py
-app/Python/setting_file/api_yaml.py
-app/Python/setting_file/api_json.py
