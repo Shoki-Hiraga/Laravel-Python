@@ -23,6 +23,10 @@ Route::get('/', function () {
 
 Route::get('/test', [PythonController::class, 'index'])->name('test');
 
+Route::get('/system_audit', function () {
+    return view('main.System_audit');
+})->name('system_audit');
+
 Route::get('/aws_tran', function () {
     return view('main.AWS_transfer');
 })->name('aws_tran');

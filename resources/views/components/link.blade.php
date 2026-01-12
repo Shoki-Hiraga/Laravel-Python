@@ -5,6 +5,7 @@
 <h2><a href="{{ route('test') }}">テストページ</a></h2>
 <h2><a href="{{ route('purchase_results_images.create') }}">買取実績画像入稿</a></h2>
 <h2><a href="{{ route('purchase_results_images.index') }}">買取実績画像一覧</a></h2>
+<h2><a href="{{ route('system_audit') }}">システム監査</a></h2>
 <h2><a href="{{ route('aws_tran') }}">AWS移管</a></h2>
 <h2><a href="{{ route('aws_opt') }}">AWS最適化</a></h2>
 <h2><a href="{{ route('images') }}">画像処理（本番環境でのみ動作）</a></h2>
