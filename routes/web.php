@@ -23,6 +23,14 @@ Route::get('/', function () {
 
 Route::get('/test', [PythonController::class, 'index'])->name('test');
 
+Route::get('/keisan_system_audit', function () {
+    return view('main.Keisan_System_audit');
+})->name('keisan_system_audit');
+
+Route::get('/keisan_system_manage', function () {
+    return view('main.Keisan_System_manage');
+})->name('keisan_system_manage');
+
 Route::get('/system_audit', function () {
     return view('main.System_audit');
 })->name('system_audit');
